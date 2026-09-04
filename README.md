@@ -1,36 +1,141 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 1Fi EMI Store
 
-## Getting Started
+A full-stack e-commerce web application displaying smart phones with multiple EMI plans backed by mutual funds. Built as part of the 1Fi SDE1 Assignment.
 
-First, run the development server:
+## 🚀 Tech Stack Used
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+*   **Frontend**: React (Next.js 15 App Router), Tailwind CSS
+*   **Backend**: Node.js (Next.js API Routes)
+*   **Database**: MongoDB (via Mongoose)
+*   **Language**: TypeScript
+
+## 📦 Database Schema
+
+The application uses MongoDB to store Product data, with nested arrays for Variants and EMI Plans.
+
+```typescript
+// Product Schema
+{
+  name: String,
+  slug: String, // Unique URL identifier
+  description: String,
+  mrp: Number,
+  price: Number,
+  variants: [
+    {
+      name: String,    // e.g., "Titanium Gray"
+      color: String,   // Hex code, e.g., "#808080"
+      storage: String, // e.g., "256GB"
+      image: String,   // Path to main variant image
+      thumbnails: [String] // Array of image paths for the gallery
+    }
+  ],
+  emiPlans: [
+    {
+      tenure: Number, // Months, e.g., 3, 6, 9, 12
+      monthlyPayment: Number,
+      interestRate: Number, // e.g., 0%
+      cashback: Number      // e.g., 949
+    }
+  ]
+}
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Setup and Run Instructions
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1.  **Clone the repository and install dependencies:**
+    ```bash
+    git clone <your-repo-url>
+    cd 1fi-emi-store
+    npm install
+    ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2.  **Set up Environment Variables:**
+    Create a `.env.local` file in the root directory and add your MongoDB connection string:
+    ```env
+    MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>?retryWrites=true&w=majority
+    ```
 
-## Learn More
+3.  **Seed the Database:**
+    Populate the database with sample products (Apple iPhone 17 Pro, Samsung Galaxy S25 Ultra, etc.):
+    ```bash
+    npx tsx scripts/seed.ts
+    ```
 
-To learn more about Next.js, take a look at the following resources:
+4.  **Run the Development Server:**
+    ```bash
+    npm run dev
+    ```
+    Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🔌 API Endpoints
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 1. Get All Products
+**Endpoint:** `GET /api/products`
+**Description:** Fetches a list of all available products.
 
-## Deploy on Vercel
+**Example Response:**
+```json
+[
+  {
+    "_id": "64f1a2b3c4d5e6f7g8h9i0j1",
+    "name": "Samsung Galaxy S25 Ultra 5G AI",
+    "slug": "samsung-galaxy-s25-ultra",
+    "mrp": 129999,
+    "price": 94999,
+    "variants": [
+      {
+        "name": "Titanium Black",
+        "color": "#1A1A1A",
+        "storage": "256GB",
+        "image": "/products/s25-black-thumb1.jpg",
+        "thumbnails": ["..."]
+      }
+    ],
+    "emiPlans": [
+      {
+        "tenure": 6,
+        "monthlyPayment": 13458,
+        "interestRate": 0,
+        "cashback": 0
+      }
+    ]
+  }
+]
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 2. Get Single Product by Slug
+**Endpoint:** `GET /api/products/[slug]`
+**Description:** Fetches detailed information for a specific product using its unique slug (e.g., `/api/products/samsung-galaxy-s25-ultra`).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Example Response:**
+```json
+{
+  "_id": "64f1a2b3c4d5e6f7g8h9i0j1",
+  "name": "Samsung Galaxy S25 Ultra 5G AI",
+  "slug": "samsung-galaxy-s25-ultra",
+  "description": "The ultimate Android experience with AI.",
+  "mrp": 129999,
+  "price": 94999,
+  "variants": [
+    {
+      "name": "Titanium Silverblue",
+      "color": "#A8B8C8",
+      "storage": "256GB",
+      "image": "/products/s25-silverblue-thumb1.jpg",
+      "thumbnails": [
+        "/products/s25-silverblue.jpg",
+        "/products/s25-silverblue-thumb1.jpg"
+      ]
+    }
+  ],
+  "emiPlans": [
+    {
+      "tenure": 3,
+      "monthlyPayment": 26916,
+      "interestRate": 0,
+      "cashback": 949
+    }
+  ]
+}
+```
